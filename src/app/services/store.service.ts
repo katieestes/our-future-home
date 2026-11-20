@@ -1,5 +1,6 @@
 import { Injectable, inject, signal, WritableSignal } from '@angular/core';
 import { SupabaseService } from './supabase.service';
+import { shrinkImage } from './shrink-image';
 import { Settings, TableName, Tables } from '../models';
 
 const TABLES: TableName[] = [
@@ -116,8 +117,9 @@ export class StoreService {
     return true;
   }
 
-  /** Uploads a photo to Supabase Storage and returns its public URL. */
-  async uploadImage(file: File): Promise<string | null> {
+  /** Shrinks a photo, uploads it to Supabase Storage, and returns its public URL. */
+  async uploadImage(original: File): Promise<string | null> {
+    const file = await shrinkImage(original);
     const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
     const path = `${crypto.randomUUID()}.${ext}`;
     const { error } = await this.db.storage.from('images').upload(path, file, {
@@ -129,6 +131,13 @@ export class StoreService {
       return null;
     }
     return this.db.storage.from('images').getPublicUrl(path).data.publicUrl;
+  }
+
+  /** How much photo storage is used (bytes + file count). */
+  async storageUsage(): Promise<{ bytes: number; files: number } | null> {
+    const { data, error } = await this.db.rpc('storage_usage');
+    if (error || !data?.[0]) return null;
+    return { bytes: Number(data[0].bytes), files: Number(data[0].files) };
   }
 
   // ----- household members -----

@@ -1,0 +1,33 @@
+# Supabase pauses free projects after 1 week with no activity.
+# This pings the database twice a week so the planning hub stays awake.
+name: Keep Supabase awake
+
+on:
+  schedule:
+    - cron: '17 14 * * 1,4'   # Mondays and Thursdays, ~8–9am Central
+  workflow_dispatch:           # lets you run it by hand from the Actions tab
+
+permissions:
+  actions: write   # needed for the "stay enabled" step below
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        env:
+          # Same publishable key the website uses (safe to be public; it can only call keep_alive here).
+          SUPABASE_URL: https://tbpezsjubonfzjvinbdw.supabase.co
+          SUPABASE_KEY: sb_publishable_cXcEwTX7TtXvT_iF1Mld0Q_YefRcor7
+        run: |
+          curl --fail --silent --show-error -X POST "$SUPABASE_URL/rest/v1/rpc/keep_alive" \
+            -H "apikey: $SUPABASE_KEY" -H "Content-Type: application/json" -d '{}'
+          echo
+          echo "Supabase is awake."
+
+      # GitHub turns off scheduled workflows in repos with no commits for 60 days.
+      # Re-enabling this workflow on every run keeps that from happening.
+      - name: Keep this schedule enabled
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/keep-alive.yml/enable"

@@ -31,6 +31,19 @@ import { SupabaseService } from '../services/supabase.service';
           [(ngModel)]="newEmail" required />
         <button class="btn btn-primary" type="submit">Add</button>
       </form>
+      @if (usage(); as u) {
+        <div class="usage">
+          <div class="usage-row">
+            <span>Photo storage</span>
+            <span>{{ mb(u.bytes) }} of 1,024 MB · {{ u.files }} {{ u.files === 1 ? 'file' : 'files' }}</span>
+          </div>
+          <div class="bar" role="meter" aria-label="Photo storage used" aria-valuemin="0" aria-valuemax="100"
+            [attr.aria-valuenow]="pct(u.bytes)">
+            <span [style.width.%]="pct(u.bytes)" [class.warn]="pct(u.bytes) >= 80"></span>
+          </div>
+          <span class="small">Free plan limit is 1 GB. Photos are shrunk automatically when uploaded.</span>
+        </div>
+      }
       <div class="actions"><button type="button" class="btn btn-ghost" (click)="closed.emit()">Done</button></div>
     </div>
   `,
@@ -47,6 +60,12 @@ import { SupabaseService } from '../services/supabase.service';
       background: var(--sand); border-radius: 6px; font-size: 14px; }
     .add { display: flex; gap: 8px; }
     .actions { display: flex; justify-content: flex-end; }
+    .usage { display: flex; flex-direction: column; gap: 6px; padding-top: 6px; border-top: 1px solid var(--divider); }
+    .usage-row { display: flex; justify-content: space-between; font-size: 13px; gap: 8px; flex-wrap: wrap; }
+    .usage-row span:first-child { font-weight: 600; }
+    .bar { height: 8px; border-radius: 4px; background: var(--sand-dark); overflow: hidden; }
+    .bar span { display: block; height: 100%; min-width: 2px; background: var(--sage); }
+    .bar span.warn { background: var(--clay); }
   `,
   host: { '(document:keydown.escape)': 'closed.emit()' },
 })
@@ -55,10 +74,14 @@ export class MembersDialog implements OnInit {
   me = inject(SupabaseService).email;
   closed = output<void>();
   members = signal<string[]>([]);
+  usage = signal<{ bytes: number; files: number } | null>(null);
+  mb = (bytes: number) => (bytes / 1024 / 1024).toFixed(1) + ' MB';
+  pct = (bytes: number) => Math.min(100, Math.round((bytes / (1024 * 1024 * 1024)) * 1000) / 10);
   newEmail = '';
 
   async ngOnInit() {
     this.members.set(await this.store.listMembers());
+    this.usage.set(await this.store.storageUsage());
   }
 
   async add() {

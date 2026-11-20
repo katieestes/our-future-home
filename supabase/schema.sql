@@ -145,3 +145,18 @@ create policy "members read" on public.plan_images for select to authenticated u
 create policy "members insert" on public.plan_images for insert to authenticated with check (public.is_member());
 create policy "members update" on public.plan_images for update to authenticated using (public.is_member()) with check (public.is_member());
 create policy "members delete" on public.plan_images for delete to authenticated using (public.is_member());
+
+-- ===== Added: keep-alive ping + storage meter =====
+create or replace function public.keep_alive()
+returns timestamptz language sql stable set search_path = '' as $$ select now(); $$;
+revoke all on function public.keep_alive() from public;
+grant execute on function public.keep_alive() to anon, authenticated;
+
+create or replace function public.storage_usage()
+returns table(bytes bigint, files bigint) language sql stable security definer set search_path = '' as $$
+  select coalesce(sum((o.metadata->>'size')::bigint), 0)::bigint, count(*)::bigint
+  from storage.objects o
+  where o.bucket_id = 'images' and public.is_member();
+$$;
+revoke all on function public.storage_usage() from public, anon;
+grant execute on function public.storage_usage() to authenticated;

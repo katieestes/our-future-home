@@ -55,6 +55,14 @@ never changed and you can hide, undo or erase marks any time.
 - **Download** saves a PNG of the plan with your marks.
 - Coordinates are stored as fractions of the image width, so marks stay lined up at any zoom or screen size.
 
+## Staying within the free plan
+
+- **Photos are shrunk before upload** (`src/app/services/shrink-image.ts`): longest side 2400 px, JPEG 85%.
+  A typical phone photo goes from ~3–5 MB to ~300–600 KB. Change `MAX_SIDE` / `QUALITY` there if needed.
+- **Storage meter:** open **Household** in the sidebar to see how much of the 1 GB photo storage is used.
+- **Keep-alive:** `.github/workflows/keep-alive.yml` pings Supabase twice a week so the free project
+  isn't paused for inactivity. You can also run it by hand: GitHub → Actions → "Keep Supabase awake" → Run workflow.
+
 ## Adding a new field to a section (example: "price" on Finishes)
 
 1. In Supabase → SQL editor: `alter table finishes add column price text;`
