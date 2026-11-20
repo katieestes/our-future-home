@@ -1,0 +1,83 @@
+:host { display: block; min-width: 0; }
+.editor {
+  display: flex; flex-direction: column;
+  border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); overflow: hidden;
+}
+
+/* ----- toolbar ----- */
+.toolbar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  padding: 8px 10px; border-bottom: 1px solid var(--divider); background: #fbf8f3;
+}
+.group { display: flex; align-items: center; gap: 2px; }
+.group + .group { padding-left: 12px; border-left: 1px solid var(--divider); }
+.grow { flex: 1; }
+.tbtn {
+  width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--text-2);
+}
+.tbtn:hover:not(:disabled) { background: var(--sand); color: var(--text); }
+.tbtn.on { background: var(--sage-tint); color: var(--sage-text); border-color: #cfd8c8; }
+.tbtn:disabled { opacity: 0.35; cursor: default; }
+.tbtn:focus-visible, .dot:focus-visible { outline: 2px solid var(--sage); outline-offset: 1px; }
+.tbtn.pct { width: auto; padding: 0 8px; font-size: 13px; font-variant-numeric: tabular-nums; }
+.size span { display: block; border-radius: 50%; background: currentColor; }
+.dot {
+  width: 26px; height: 26px; margin: 7px 3px; border-radius: 50%;
+  border: 2px solid #fff; box-shadow: 0 0 0 1px #d8cfc1;
+}
+.dot.on { box-shadow: 0 0 0 2px var(--text); }
+
+/* ----- drawing area ----- */
+.viewport {
+  position: relative; overflow: auto;
+  height: clamp(380px, calc(100dvh - 150px), 1400px);
+  background:
+    linear-gradient(45deg, #f1ece4 25%, transparent 25%, transparent 75%, #f1ece4 75%) 0 0 / 20px 20px,
+    linear-gradient(45deg, #f1ece4 25%, transparent 25%, transparent 75%, #f1ece4 75%) 10px 10px / 20px 20px,
+    #f7f3ed;
+  display: flex;
+}
+.wrap {
+  position: relative; margin: auto; flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(46, 42, 38, 0.12); background: #fff;
+}
+.wrap img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  user-select: none; -webkit-user-select: none; pointer-events: none;
+}
+canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  touch-action: none; /* lets us handle pencil, finger and pinch ourselves */
+  cursor: crosshair;
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+}
+canvas.cursor-pan { cursor: grab; }
+canvas.cursor-text { cursor: text; }
+canvas.cursor-erase { cursor: cell; }
+
+.text-draft {
+  position: absolute; z-index: 2; min-width: 160px; font-weight: 600;
+  font-family: var(--font-ui); line-height: 1.1;
+  background: rgba(255, 255, 255, 0.9); border: 1px dashed currentColor; border-radius: 4px;
+  padding: 0 4px; margin: -1px 0 0 -5px; outline: none;
+}
+
+.status, .toolbar { -webkit-user-select: none; user-select: none; }
+.status {
+  display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding: 6px 12px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--divider);
+}
+.warn { color: #8a2f19; }
+
+@media (max-width: 700px) {
+  .grow { display: none; }
+  .group + .group { padding-left: 0; border-left: none; }
+}
+
+/* full-screen mode: editor covers the whole window (great on iPad) */
+:host(.full) { position: fixed; inset: 0; z-index: 40; }
+:host(.full) .editor { height: 100%; border-radius: 0; border: none; }
+:host(.full) .viewport { height: auto; flex: 1; }
+:host(.full) .toolbar { padding-top: max(8px, env(safe-area-inset-top)); }
+:host(.full) .status { padding-bottom: max(6px, env(safe-area-inset-bottom)); }

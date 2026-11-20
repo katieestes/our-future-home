@@ -20,7 +20,41 @@ export interface Plan {
   tag: PlanTag;
   link_url?: string | null;
   image_url?: string | null;
+  source?: string | null;
+  likes?: string | null;
+  changes?: string | null;
   notes?: string | null;
+  sort_order?: number;
+}
+
+// ----- Plan images + drawings -----
+
+/** The kinds of marks you can draw on a plan. */
+export type StrokeTool = 'pen' | 'highlighter' | 'arrow' | 'rect' | 'text';
+
+/**
+ * One mark on a plan image.
+ * `points` is a flat list [x, y, pressure, x, y, pressure, ...].
+ * x and y are divided by the image's WIDTH (so 0.5 = halfway across),
+ * which keeps drawings lined up at any zoom level or screen size.
+ * `size` is the line width (or font size for text), also as a fraction of the width.
+ */
+export interface Stroke {
+  id: string;
+  tool: StrokeTool;
+  color: string;
+  size: number;
+  points: number[];
+  text?: string;
+}
+
+export interface PlanImage {
+  id?: string;
+  plan_id: string;
+  image_url: string;
+  caption?: string | null;
+  markup: Stroke[];
+  markup_updated_at?: string | null;
   sort_order?: number;
 }
 
@@ -84,6 +118,7 @@ export interface Settings {
 export interface Tables {
   finishes: Finish;
   plans: Plan;
+  plan_images: PlanImage;
   dos_donts: DoDont;
   inspiration: Inspiration;
   canva_designs: CanvaDesign;

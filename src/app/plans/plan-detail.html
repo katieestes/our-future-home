@@ -1,0 +1,101 @@
+@if (plan(); as p) {
+  <div class="page">
+    <a class="back" routerLink="/plans"><app-icon name="back" [size]="16" />All plans</a>
+
+    <header class="head">
+      <div class="title">
+        <div class="row">
+          <h1>{{ p.name }}</h1>
+          <span class="pill" [class]="tag(p.tag).css">{{ tag(p.tag).label }}</span>
+        </div>
+        <p class="sub">
+          @if (p.details) { <span>{{ p.details }}</span> }
+          @if (p.source) { <span>· {{ p.source }}</span> }
+          @if (p.link_url) {
+            <a [href]="p.link_url" target="_blank" rel="noopener">View original plan ↗</a>
+          }
+        </p>
+      </div>
+      <button class="btn btn-ghost" type="button" (click)="editPlan()"><app-icon name="edit" [size]="15" />Edit plan</button>
+    </header>
+
+    <div class="layout">
+      <div class="main">
+        <!-- Image strip -->
+        <div class="strip" role="list" aria-label="Plan images">
+          @for (img of images(); track img.id) {
+            <div class="thumb-wrap" role="listitem">
+              <button type="button" class="thumb" [class.on]="selected()?.id === img.id" (click)="selectedId.set(img.id!)"
+                [attr.aria-pressed]="selected()?.id === img.id" [attr.aria-label]="'Show ' + (img.caption || 'image ' + ($index + 1))">
+                <img [src]="img.image_url" alt="" loading="lazy" />
+                @if (img.markup.length) { <span class="marked" aria-hidden="true"><app-icon name="pen" [size]="11" [stroke]="2.2" /></span> }
+              </button>
+              <span class="cap">{{ img.caption || 'Image ' + ($index + 1) }}</span>
+            </div>
+          }
+          <label class="add-tile" [class.busy]="uploading()">
+            <input type="file" accept="image/*" multiple (change)="addFiles($event)" class="sr-only" />
+            <app-icon name="upload" [size]="20" />
+            <span>{{ uploading() ? 'Uploading…' : 'Upload images' }}</span>
+          </label>
+          <button type="button" class="add-tile" (click)="addByLink()">
+            <app-icon name="link" [size]="20" />
+            <span>Add by link</span>
+          </button>
+        </div>
+
+        @if (selected(); as img) {
+          <div class="img-head">
+            <h2>{{ img.caption || 'Untitled image' }}</h2>
+            <div class="row">
+              <span class="meta" aria-live="polite">
+                @switch (saveState()) {
+                  @case ('saving') { Saving… }
+                  @case ('saved') { All changes saved }
+                }
+              </span>
+              <button class="btn btn-ghost sm" type="button" (click)="editImage(img)">Rename / delete image</button>
+            </div>
+          </div>
+          <app-markup-editor
+            [imageUrl]="img.image_url"
+            [strokes]="img.markup"
+            [downloadName]="p.name + ' - ' + (img.caption || 'markup')"
+            (strokesChange)="onMarkup(img, $event)" />
+        } @else {
+          <label class="drop">
+            <input type="file" accept="image/*" multiple (change)="addFiles($event)" class="sr-only" />
+            <app-icon name="upload" [size]="28" [stroke]="1.5" />
+            <strong>{{ uploading() ? 'Uploading…' : 'Upload floor plan images' }}</strong>
+            <span class="small">Screenshots, photos or PDFs saved as images. Then draw your changes right on top.</span>
+          </label>
+        }
+      </div>
+
+      <!-- Notes -->
+      <aside class="notes">
+        <div class="note like">
+          <label for="likes">What we like</label>
+          <textarea id="likes" [value]="p.likes ?? ''" (blur)="saveNote('likes', $event)"
+            placeholder="Big pantry, split bedrooms…"></textarea>
+        </div>
+        <div class="note change">
+          <label for="changes">Changes we’d make</label>
+          <textarea id="changes" [value]="p.changes ?? ''" (blur)="saveNote('changes', $event)"
+            placeholder="Move laundry next to primary closet…"></textarea>
+        </div>
+        <div class="note">
+          <label for="notes">Other notes</label>
+          <textarea id="notes" [value]="p.notes ?? ''" (blur)="saveNote('notes', $event)"
+            placeholder="Questions for the designer, price, square footage…"></textarea>
+        </div>
+        <p class="small">Notes save when you click away.</p>
+      </aside>
+    </div>
+  </div>
+} @else {
+  <div class="page">
+    <a class="back" routerLink="/plans"><app-icon name="back" [size]="16" />All plans</a>
+    <p class="empty">{{ store.loading() ? 'Loading…' : 'This plan doesn’t exist (it may have been deleted).' }}</p>
+  </div>
+}

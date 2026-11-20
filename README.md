@@ -28,7 +28,13 @@ people from **Household** in the sidebar.
 | Path | What it is |
 | --- | --- |
 | `src/app/app.html` / `app.ts` | Page shell: sign-in states, sidebar, dashboard grid |
+| `src/app/app.routes.ts` | Pages: `#/` dashboard, `#/plans` list, `#/plans/:id` one plan |
+| `src/app/dashboard.ts` | The overview page (grid of sections) |
 | `src/app/sections/` | One component per dashboard section |
+| `src/app/plans/plan-list.ts` | House Plans page (cards, filters, search) |
+| `src/app/plans/plan-detail.*` | One plan: image strip, drawing area, notes |
+| `src/app/plans/markup/markup-editor.*` | The drawing tool (pen, highlighter, arrow, box, text, eraser, zoom) |
+| `src/app/plans/markup/draw.ts` | Pure drawing math: render strokes, eraser hit-testing, PNG export |
 | `src/app/shared/edit-dialog.ts` | The single add/edit form every section reuses |
 | `src/app/services/store.service.ts` | Loads and saves data (signals + Supabase) |
 | `src/app/services/supabase.service.ts` | Supabase client + who's signed in |
@@ -36,6 +42,18 @@ people from **Household** in the sidebar.
 | `src/styles.css` | Colors, buttons, cards, tables (edit the `:root` variables to retheme) |
 | `supabase/schema.sql` | Database tables and security rules (for reference) |
 | `.github/workflows/deploy.yml` | Builds and deploys to GitHub Pages on every push to `main` |
+
+## House Plans drawing tool
+
+Each plan can have several images (main floor, upstairs, option B…). Drawings are saved as
+*strokes* (JSON) in `plan_images.markup` — not baked into the picture — so the original plan is
+never changed and you can hide, undo or erase marks any time.
+
+- **Tools:** Pen (P), Highlighter (H), Arrow (A), Box (B), Text (T), Eraser (E), Move (M). Undo: Ctrl/Cmd+Z.
+- **Apple Pencil:** pressure changes line width. Turn on **Pencil only** so fingers scroll and pinch-zoom instead of drawing.
+- **Full screen** button gives the whole iPad screen to the plan.
+- **Download** saves a PNG of the plan with your marks.
+- Coordinates are stored as fractions of the image width, so marks stay lined up at any zoom or screen size.
 
 ## Adding a new field to a section (example: "price" on Finishes)
 

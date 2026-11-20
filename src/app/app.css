@@ -31,9 +31,9 @@
   all: unset; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 7px 10px;
   border-radius: 6px; color: var(--text-2); font-size: 14px;
 }
-.nav-item:hover { background: #ebe5dc; }
+.nav-item:hover { background: #ebe5dc; text-decoration: none; color: var(--text); }
 .nav-item:focus-visible { outline: 2px solid var(--sage); }
-.nav-item.current { background: var(--sage-tint); color: var(--text); font-weight: 600; }
+.nav-item.current, .nav-item.current:hover { background: var(--sage-tint); color: var(--text); font-weight: 600; }
 .nav-item.current app-icon { color: var(--sage-icon); }
 .nav-item.sub { padding-left: 36px; }
 .spacer { flex: 1; min-height: 16px; }
@@ -46,26 +46,9 @@
 }
 .crumbs strong { color: var(--text); font-weight: 500; }
 
-.page { padding: 24px 40px 48px; display: flex; flex-direction: column; gap: 20px; max-width: 1680px; width: 100%; box-sizing: border-box; }
-
-/* 12-column dashboard grid. Each section host gets a span class. */
-.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
-.grid > * { display: flex; flex-direction: column; min-width: 0; }
-.span-3 { grid-column: span 3; }
-.span-4 { grid-column: span 4; }
-.span-5 { grid-column: span 5; }
-.span-6 { grid-column: span 6; }
-.span-8 { grid-column: span 8; }
-
-@media (max-width: 1280px) {
-  .span-8, .span-4 { grid-column: span 12; }
-  .span-5 { grid-column: span 7; }
-  .span-4:is(app-plans) { grid-column: span 5; }
-  .span-3 { grid-column: span 12; }
-}
-@media (max-width: 1100px) {
-  .span-5, .span-6, .span-4:is(app-plans) { grid-column: span 12; }
-}
+.count { margin-left: auto; font-size: 12px; color: var(--muted); }
+.crumbs { display: flex; gap: 8px; align-items: center; }
+.crumbs a { color: var(--muted); }
 
 /* Phone / small tablet: sidebar becomes a top bar with a menu */
 @media (max-width: 860px) {
@@ -76,7 +59,6 @@
   .nav-body { display: none; padding-bottom: 8px; }
   .sidebar.open .nav-body { display: flex; }
   .topbar { display: none; }
-  .page { padding: 16px 14px 40px; }
 }
 
 .toast {

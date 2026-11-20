@@ -5,6 +5,7 @@ import { Settings, TableName, Tables } from '../models';
 const TABLES: TableName[] = [
   'finishes',
   'plans',
+  'plan_images',
   'dos_donts',
   'inspiration',
   'canva_designs',
@@ -69,6 +70,32 @@ export class StoreService {
       if (error) return this.fail(error.message), false;
     }
     await this.load(table);
+    return true;
+  }
+
+  /** Insert one row and return it (with its new id), or null on error. */
+  async insert<K extends TableName>(table: K, row: Omit<Tables[K], 'id'>): Promise<Tables[K] | null> {
+    const nextOrder = this.rows[table]().length + 1;
+    const { data, error } = await this.db
+      .from(table)
+      .insert({ ...this.emptyToNull(row as Record<string, unknown>), sort_order: nextOrder })
+      .select()
+      .single();
+    if (error) return this.fail(error.message), null;
+    this.rows[table].update((list) => [...list, data as Tables[K]]);
+    return data as Tables[K];
+  }
+
+  /**
+   * Change a few fields on one row. The screen updates right away;
+   * the database save happens in the background.
+   */
+  async patch<K extends TableName>(table: K, id: string, fields: Partial<Tables[K]>): Promise<boolean> {
+    this.rows[table].update((list) =>
+      list.map((r) => ((r as { id?: string }).id === id ? { ...r, ...fields } : r)),
+    );
+    const { error } = await this.db.from(table).update(fields as never).eq('id', id);
+    if (error) return this.fail(error.message), false;
     return true;
   }
 

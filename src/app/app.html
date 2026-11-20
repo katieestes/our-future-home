@@ -43,12 +43,17 @@
       </div>
       <div class="nav-body">
         <span class="nav-label">Home Planning</span>
-        <button class="nav-item current" type="button" (click)="scrollTo('top')" aria-current="page">
+        <a class="nav-item" routerLink="/" routerLinkActive="current" [routerLinkActiveOptions]="{ exact: true }"
+          ariaCurrentWhenActive="page">
           <app-icon name="home" [size]="16" />Our Future Home
-        </button>
+        </a>
         @for (n of nav; track n.id) {
           <button class="nav-item sub" type="button" (click)="scrollTo(n.id)">{{ n.label }}</button>
         }
+        <a class="nav-item" routerLink="/plans" routerLinkActive="current" ariaCurrentWhenActive="page">
+          <app-icon name="plan" [size]="16" />House Plans
+          <span class="count">{{ store.rows.plans().length }}</span>
+        </a>
         <span class="spacer"></span>
         <button class="nav-item" type="button" (click)="showMembers.set(true); menuOpen.set(false)">
           <app-icon name="users" [size]="16" />Household
@@ -63,21 +68,17 @@
     <!-- Main -->
     <div class="main">
       <header class="topbar">
-        <span class="crumbs">Home Planning <span aria-hidden="true">/</span> <strong>Our Future Home</strong></span>
+        <span class="crumbs">Home Planning
+          @for (c of crumbs(); track $index) {
+            <span aria-hidden="true">/</span>
+            @if ($last) { <strong>{{ c }}</strong> } @else { <a routerLink="/plans">{{ c }}</a> }
+          }
+        </span>
         @if (store.loading()) { <span class="meta">Syncing…</span> }
       </header>
 
-      <main class="page" id="top">
-        <app-page-header />
-        <div class="grid">
-          <app-finishes class="span-8" />
-          <app-dos-donts class="span-4" />
-          <app-inspiration class="span-5" />
-          <app-plans class="span-4" />
-          <app-canva-designs class="span-3" />
-          <app-costs class="span-6" />
-          <app-builders class="span-6" />
-        </div>
+      <main>
+        <router-outlet />
       </main>
     </div>
   </div>

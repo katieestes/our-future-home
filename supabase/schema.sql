@@ -122,3 +122,26 @@ create policy "members update images" on storage.objects for update to authentic
   using (bucket_id = 'images' and public.is_member());
 create policy "members delete images" on storage.objects for delete to authenticated
   using (bucket_id = 'images' and public.is_member());
+
+-- ===== Added: House Plans view (plan images + drawings) =====
+alter table public.plans
+  add column if not exists source text,
+  add column if not exists likes text,
+  add column if not exists changes text;
+
+create table public.plan_images (
+  id uuid primary key default gen_random_uuid(),
+  plan_id uuid not null references public.plans(id) on delete cascade,
+  image_url text not null,
+  caption text,
+  markup jsonb not null default '[]'::jsonb,  -- drawing strokes (see Stroke in src/app/models.ts)
+  markup_updated_at timestamptz,
+  sort_order int not null default 0,
+  created_at timestamptz not null default now()
+);
+create index plan_images_plan_id_idx on public.plan_images(plan_id);
+alter table public.plan_images enable row level security;
+create policy "members read" on public.plan_images for select to authenticated using (public.is_member());
+create policy "members insert" on public.plan_images for insert to authenticated with check (public.is_member());
+create policy "members update" on public.plan_images for update to authenticated using (public.is_member()) with check (public.is_member());
+create policy "members delete" on public.plan_images for delete to authenticated using (public.is_member());

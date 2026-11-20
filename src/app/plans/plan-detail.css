@@ -1,0 +1,72 @@
+.page { padding: 18px 32px 40px; max-width: 1800px; display: flex; flex-direction: column; gap: 14px; }
+.back { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: var(--muted); align-self: flex-start; }
+.head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+.row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+h1 { font-family: var(--font-display); font-weight: 600; font-size: clamp(26px, 3vw, 34px); line-height: 1.1; }
+.sub { margin: 6px 0 0; color: var(--text-2); display: flex; gap: 8px; flex-wrap: wrap; font-size: 14px; }
+
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; align-items: start; }
+.main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+
+/* image strip */
+.strip { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
+.thumb-wrap { display: flex; flex-direction: column; gap: 4px; width: 112px; flex-shrink: 0; }
+.thumb {
+  position: relative; width: 112px; height: 76px; padding: 0; border-radius: 6px; overflow: hidden;
+  border: 2px solid transparent; background: #fff; box-shadow: 0 0 0 1px var(--border);
+}
+.thumb img { width: 100%; height: 100%; object-fit: cover; }
+.thumb.on { border-color: var(--sage); }
+.thumb:focus-visible { outline: 2px solid var(--sage); outline-offset: 2px; }
+.marked {
+  position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--clay); color: #fff; display: flex; align-items: center; justify-content: center;
+}
+.cap { font-size: 12px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.add-tile {
+  all: unset; box-sizing: border-box; cursor: pointer; flex-shrink: 0;
+  width: 112px; height: 76px; border: 1px dashed #cfc5b5; border-radius: 6px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  font-size: 12px; color: var(--text-2); text-align: center;
+}
+.add-tile:hover { background: var(--sand); }
+.add-tile:focus-within, .add-tile:focus-visible { outline: 2px solid var(--sage); }
+.add-tile.busy { opacity: 0.6; pointer-events: none; }
+
+.img-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.img-head h2 { font-size: 16px; font-weight: 600; }
+.sm { padding: 5px 10px; min-height: 32px; font-size: 13px; }
+
+.drop {
+  cursor: pointer; border: 2px dashed #cfc5b5; border-radius: var(--radius); background: var(--surface);
+  min-height: 360px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; text-align: center; padding: 24px; color: var(--text-2);
+}
+.drop:hover { background: #fcf9f4; }
+.drop:focus-within { outline: 2px solid var(--sage); }
+.drop strong { font-size: 16px; color: var(--text); }
+
+/* notes */
+.notes { display: flex; flex-direction: column; gap: 12px; position: sticky; top: 16px; }
+.note { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+.note label { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #6a5f54; }
+.note.like { background: var(--sage-wash); border-color: #dbe3d4; }
+.note.like label { color: var(--sage-text); }
+.note.change { background: var(--clay-wash); border-color: #efd9cd; }
+.note.change label { color: var(--clay-text); }
+.note textarea {
+  font: inherit; font-size: 14px; color: var(--text); background: rgba(255,255,255,.7);
+  border: 1px solid transparent; border-radius: 6px; padding: 8px; min-height: 110px; resize: vertical;
+}
+.note textarea:focus { outline: 2px solid var(--sage); background: #fff; }
+.notes > .small { margin: 0; }
+
+@media (max-width: 1100px) {
+  .layout { grid-template-columns: 1fr; }
+  .notes { position: static; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .notes > .small { grid-column: 1 / -1; }
+}
+@media (max-width: 860px) {
+  .page { padding: 12px 12px 32px; }
+  .notes { grid-template-columns: 1fr; }
+}
