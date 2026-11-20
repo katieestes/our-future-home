@@ -1,0 +1,88 @@
+@if (!supabase.ready()) {
+  <div class="center"><p class="meta">Loading…</p></div>
+} @else if (!supabase.session()) {
+  <app-login />
+} @else if (supabase.recovering()) {
+  <div class="center">
+    <form class="panel" (ngSubmit)="setPassword()">
+      <h1>Set a new password</h1>
+      <div class="field">
+        <label for="np">New password</label>
+        <input class="input" id="np" name="np" type="password" minlength="8" autocomplete="new-password"
+          [(ngModel)]="newPassword" required />
+      </div>
+      @if (passwordMsg()) { <p class="small" role="alert">{{ passwordMsg() }}</p> }
+      <button class="btn btn-primary" type="submit">Save password</button>
+    </form>
+  </div>
+} @else if (supabase.isMember() === null) {
+  <div class="center"><p class="meta">Checking access…</p></div>
+} @else if (!supabase.isMember()) {
+  <div class="center">
+    <div class="panel">
+      <h1>Almost there</h1>
+      <p>You're signed in as <strong>{{ supabase.email() }}</strong>, but this email hasn't been added to the household yet.</p>
+      <p class="small">Ask the hub owner to add your email under <strong>Household</strong>, then refresh this page.</p>
+      <div class="row">
+        <button class="btn btn-primary" type="button" (click)="supabase.checkMembership()">Check again</button>
+        <button class="btn btn-ghost" type="button" (click)="supabase.signOut()">Sign out</button>
+      </div>
+    </div>
+  </div>
+} @else {
+  <div class="shell">
+    <!-- Sidebar -->
+    <nav class="sidebar" [class.open]="menuOpen()" aria-label="Sections">
+      <div class="ws">
+        <span class="ws-logo">H</span>
+        <span class="ws-name">Our Home Hub</span>
+        <button class="btn btn-ghost menu-btn" type="button" (click)="menuOpen.set(!menuOpen())"
+          [attr.aria-expanded]="menuOpen()" aria-label="Toggle menu">
+          <app-icon name="menu" />
+        </button>
+      </div>
+      <div class="nav-body">
+        <span class="nav-label">Home Planning</span>
+        <button class="nav-item current" type="button" (click)="scrollTo('top')" aria-current="page">
+          <app-icon name="home" [size]="16" />Our Future Home
+        </button>
+        @for (n of nav; track n.id) {
+          <button class="nav-item sub" type="button" (click)="scrollTo(n.id)">{{ n.label }}</button>
+        }
+        <span class="spacer"></span>
+        <button class="nav-item" type="button" (click)="showMembers.set(true); menuOpen.set(false)">
+          <app-icon name="users" [size]="16" />Household
+        </button>
+        <button class="nav-item" type="button" (click)="supabase.signOut()">
+          <app-icon name="logout" [size]="16" />Sign out
+        </button>
+        <span class="who">{{ supabase.email() }}</span>
+      </div>
+    </nav>
+
+    <!-- Main -->
+    <div class="main">
+      <header class="topbar">
+        <span class="crumbs">Home Planning <span aria-hidden="true">/</span> <strong>Our Future Home</strong></span>
+        @if (store.loading()) { <span class="meta">Syncing…</span> }
+      </header>
+
+      <main class="page" id="top">
+        <app-page-header />
+        <div class="grid">
+          <app-finishes class="span-8" />
+          <app-dos-donts class="span-4" />
+          <app-inspiration class="span-5" />
+          <app-plans class="span-4" />
+          <app-canva-designs class="span-3" />
+          <app-costs class="span-6" />
+          <app-builders class="span-6" />
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <app-edit-dialog />
+  @if (showMembers()) { <app-members-dialog (closed)="showMembers.set(false)" /> }
+  @if (store.error()) { <div class="toast" role="alert">{{ store.error() }}</div> }
+}
